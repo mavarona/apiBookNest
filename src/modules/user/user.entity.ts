@@ -1,4 +1,18 @@
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  BaseEntity,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  JoinColumn,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
+import { UserDetails } from './user.details.entity';
+import { Role } from '../role/role.entity';
+import { type } from 'os';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -14,12 +28,28 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', nullable: false })
   password: string;
 
+  @OneToOne(type => UserDetails, {
+    cascade: true,
+    nullable: false,
+    eager: true,
+  })
+  @JoinColumn({ name: 'detail_id' })
+  details: UserDetails;
+
+  @ManyToMany(
+    type => Role,
+    role => role.users,
+    { eager: true },
+  )
+  @JoinTable({ name: 'user_roles' })
+  roles: Role[];
+
   @Column({ type: 'varchar', default: 'ACTIVE', length: 8 })
   status: string;
 
-  @Column({ type: 'timestamp', name: 'created_at' })
+  @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 
-  @Column({ type: 'timestamp', name: 'updated_at' })
+  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
   updateAt: Date;
 }
